@@ -1,0 +1,14 @@
+services:
+  rica-mongo1:
+    image: mongo:7
+    container_name: rica-mongo1
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: rica
+    ports:
+      - "27017:27017"
+    volumes:
+      - rica-mongo-data:/data/db
+
+volumes:
+  rica-mongo-data:

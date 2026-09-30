@@ -1,0 +1,11 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: investigadores-service
+  datasource:
+    # Cambiamos localhost por 127.0.0.1
+    url: jdbc:postgresql://127.0.0.1:5432/rica
+    username: rica
+    password: rica
