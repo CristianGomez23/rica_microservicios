@@ -5,6 +5,8 @@ import com.rica.investigadores_service.compartido.RecursoNoEncontradoException;
 import com.rica.investigadores_service.dominio.Investigador;
 
 import java.util.List;
+import java.util.Map;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class InvestigadorService implements InvestigadorUseCase {
@@ -12,7 +14,10 @@ public class InvestigadorService implements InvestigadorUseCase {
     private final RepositorioInvestigadores repositorioInvestigadores;
     private final InvestigadorFactory investigadorFactory;
 
-    public InvestigadorService(RepositorioInvestigadores repositorioInvestigadores, InvestigadorFactory investigadorFactory) {
+    private final PublicadorEventos publicadorEventos;
+
+    public InvestigadorService(RepositorioInvestigadores repositorioInvestigadores, InvestigadorFactory investigadorFactory, PublicadorEventos publicadorEventos) {
+        this.publicadorEventos = publicadorEventos;
         this.repositorioInvestigadores = repositorioInvestigadores;
         this.investigadorFactory = investigadorFactory;
     }
@@ -30,9 +35,35 @@ public class InvestigadorService implements InvestigadorUseCase {
     }
 
     @Override
+    @Transactional
     public Investigador registrar(String nombreCompleto, String correoInstitucional, String grupoInvestigacion) {
         Investigador investigador = investigadorFactory.crear(nombreCompleto, correoInstitucional, grupoInvestigacion);
-            return repositorioInvestigadores.guardar(investigador);
+        Investigador guardado = repositorioInvestigadores.guardar(investigador);
+        publicadorEventos.publicar("investigadores.registrados", correoInstitucional,
+                Map.of("id", guardado.getId(), "correoInstitucional", correoInstitucional,
+                        "nombreCompleto", nombreCompleto));
+        return guardado;
+    }
+
+
+    @Override
+    @Transactional
+    public void iniciarEliminacion(Long id) {
+        Investigador investigador = buscarPorId(id);
+        if (investigador.estaEnEliminacion()) return;
+        investigador.marcarEnEliminacion();
+        repositorioInvestigadores.guardar(investigador);
+        String correo = investigador.getCorreoInstitucional().valor();
+        publicadorEventos.publicar("investigadores.en-eliminacion", correo,
+                Map.of("correoInstitucional", correo));
+    }
+
+    @Override
+    @Transactional
+    public void confirmarEliminacion(String correoInstitucional) {
+        repositorioInvestigadores.buscarPorCorreo(correoInstitucional)
+                .filter(Investigador::estaEnEliminacion)
+                .ifPresent(repositorioInvestigadores::eliminar);
     }
 
 }

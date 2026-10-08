@@ -2,6 +2,7 @@ package com.rica.publicaciones_service.compartido;
 
 //import com.rica.investigadores_service.dominio.CorreoDuplicadoException;
 import org.springframework.http.HttpStatus;
+import com.rica.publicaciones_service.publicaciones.ServicioNoDisponibleException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -44,6 +45,16 @@ public class GlobalExceptionHandler {
         cuerpo.put("estado", estado.value());
         cuerpo.put("mensaje", mensaje);
         return ResponseEntity.status(estado).body(cuerpo);
+    }
+
+
+    @ExceptionHandler(ServicioNoDisponibleException.class)
+    public ResponseEntity<Map<String, Object>> manejarServicioNoDisponible(ServicioNoDisponibleException ex) {
+        return construirRespuesta(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage());
+    }
+    @ExceptionHandler(LimiteAnualExcedidoException.class)
+    public ResponseEntity<Map<String, Object>> manejarLimiteAnual(LimiteAnualExcedidoException ex) {
+        return construirRespuesta(HttpStatus.CONFLICT, ex.getMessage());
     }
 
 }

@@ -62,4 +62,13 @@ public class Investigador {
     public void setGrupoInvestigacion(String grupoInvestigacion) {
         this.grupoInvestigacion = grupoInvestigacion;
     }
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private EstadoInvestigador estado = EstadoInvestigador.ACTIVO;
+
+    public EstadoInvestigador getEstado() { return estado; }
+    public boolean estaEnEliminacion() { return estado == EstadoInvestigador.EN_ELIMINACION; }
+    public void marcarEnEliminacion() { estado = EstadoInvestigador.EN_ELIMINACION; }
+
 }

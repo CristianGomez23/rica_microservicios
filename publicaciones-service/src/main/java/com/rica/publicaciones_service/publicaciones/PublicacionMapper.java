@@ -18,11 +18,13 @@ public class PublicacionMapper {
 
     public static PublicacionResponse aResponse(Publicacion publicacion) {
         return new PublicacionResponse(
-                publicacion.getInvestigadorCorreo(),
+                publicacion.getId(),
                 publicacion.getTitulo(),
                 publicacion.getTipo(),
                 publicacion.getAnio(),
-                publicacion.getDetalles()
+                publicacion.getDetalles(),
+                publicacion.getInvestigadorCorreo(),
+                publicacion.isHuerfana()
         );
     }
 }

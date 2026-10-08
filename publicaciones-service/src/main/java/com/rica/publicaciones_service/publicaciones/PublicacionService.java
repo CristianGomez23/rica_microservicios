@@ -23,6 +23,11 @@ public class PublicacionService {
             throw new RecursoNoEncontradoException("No existe un investigador con correo " + publicacion.getInvestigadorCorreo());
         }
 
+        if (!limiteService.puedeRegistrar(publicacion)) {
+            throw new com.rica.publicaciones_service.compartido.LimiteAnualExcedidoException(
+                    "El investigador " + publicacion.getInvestigadorCorreo()
+                            + " ya alcanzó el máximo de publicaciones registradas para " + publicacion.getAnio());
+        }
         return publicacionRepository.save(publicacion);
     }
 
