@@ -6,10 +6,12 @@ import static org.mockito.Mockito.*;
 class PublicacionServiceTest {
     PublicacionRepository repo = mock(PublicacionRepository.class);
     VerificadorInvestigador verificador = mock(VerificadorInvestigador.class);
-    PublicacionService servicio = new PublicacionService(repo, verificador, new LimitePublicacionesAnualesService(repo));
+    PublicadorEventosPublicaciones publicadorEventos = mock(PublicadorEventosPublicaciones.class);
+    PublicacionService servicio = new PublicacionService(repo, verificador, new LimitePublicacionesAnualesService(repo), publicadorEventos);
     Publicacion nueva() { var p=new Publicacion(); p.setInvestigadorCorreo("ana@uptc.edu.co"); p.setAnio(2026); return p; }
     @Test void desconocidoNoSeGuarda() {
         assertThrows(RecursoNoEncontradoException.class, () -> servicio.registrar(nueva())); verify(repo,never()).save(any());
+        verify(publicadorEventos,never()).publicacionRegistrada(any());
     }
     @Test void indisponibilidadNoSeConfundeConInexistencia() {
         when(verificador.existe(anyString())).thenThrow(new ServicioNoDisponibleException("Caído",null));
@@ -19,10 +21,12 @@ class PublicacionServiceTest {
         when(verificador.existe(anyString())).thenReturn(true);
         when(repo.countByInvestigadorCorreoAndAnio("ana@uptc.edu.co",2026)).thenReturn(5L);
         assertThrows(LimiteAnualExcedidoException.class, () -> servicio.registrar(nueva())); verify(repo,never()).save(any());
+        verify(publicadorEventos,never()).publicacionRegistrada(any());
     }
     @Test void validoConCupoSeGuarda() {
         when(verificador.existe(anyString())).thenReturn(true); var p=nueva(); when(repo.save(p)).thenReturn(p);
         assertSame(p,servicio.registrar(p));
+        verify(publicadorEventos).publicacionRegistrada(p);
     }
     @Test void respuestaConservaIdCorreoYEstadoHuerfana() {
         var p=nueva(); p.setId("mongo-id"); p.marcarComoHuerfana(); var dto=PublicacionMapper.aResponse(p);

@@ -46,9 +46,20 @@ class InvestigadorServiceTest {
         when(repositorio.buscarPorCorreo("ana@uptc.edu.co")).thenReturn(Optional.of(investigador));
         servicio.confirmarEliminacion("ana@uptc.edu.co"); verify(repositorio).eliminar(investigador);
     }
+    @Test void confirmarEliminacionBorraAlInvestigadorYPublicaElEventoEliminado() {
+        investigador.marcarEnEliminacion();
+        when(repositorio.buscarPorCorreo("ana@uptc.edu.co")).thenReturn(Optional.of(investigador));
+
+        servicio.confirmarEliminacion("ana@uptc.edu.co");
+
+        verify(repositorio).eliminar(investigador);
+        verify(eventos).publicar("investigadores.eliminados", "ana@uptc.edu.co",
+                Map.of("correoInstitucional", "ana@uptc.edu.co"));
+    }
     @Test void confirmacionNoBorraInvestigadorActivo() {
         when(repositorio.buscarPorCorreo("ana@uptc.edu.co")).thenReturn(Optional.of(investigador));
         servicio.confirmarEliminacion("ana@uptc.edu.co"); verify(repositorio, never()).eliminar(any());
+        verifyNoInteractions(eventos);
     }
     @Test void confirmacionRepetidaSinInvestigadorNoFalla() {
         servicio.confirmarEliminacion("ana@uptc.edu.co"); verify(repositorio, never()).eliminar(any());

@@ -11,11 +11,13 @@ public class PublicacionService {
     private final PublicacionRepository publicacionRepository;
     private final VerificadorInvestigador verificadorInvestigador;
     private final LimitePublicacionesAnualesService limiteService;
+    private final PublicadorEventosPublicaciones publicadorEventos;
 
-    public PublicacionService(PublicacionRepository publicacionRepository, VerificadorInvestigador verificadorInvestigador, LimitePublicacionesAnualesService limiteService) {
+    public PublicacionService(PublicacionRepository publicacionRepository, VerificadorInvestigador verificadorInvestigador, LimitePublicacionesAnualesService limiteService, PublicadorEventosPublicaciones publicadorEventos) {
         this.publicacionRepository = publicacionRepository;
         this.verificadorInvestigador = verificadorInvestigador;
         this.limiteService = limiteService;
+        this.publicadorEventos = publicadorEventos;
     }
 
     public Publicacion registrar(Publicacion publicacion) {
@@ -28,7 +30,10 @@ public class PublicacionService {
                     "El investigador " + publicacion.getInvestigadorCorreo()
                             + " ya alcanzó el máximo de publicaciones registradas para " + publicacion.getAnio());
         }
-        return publicacionRepository.save(publicacion);
+        Publicacion guardada = publicacionRepository.save(publicacion);
+        // Solo se anuncia el hecho cuando el comando tuvo éxito.
+        publicadorEventos.publicacionRegistrada(guardada);
+        return guardada;
     }
 
     public List<Publicacion> listarPorInvestigador(String investigadorCorreo) {
