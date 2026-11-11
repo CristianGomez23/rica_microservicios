@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class InvestigadorService implements InvestigadorUseCase {
 
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(InvestigadorService.class);
+
     private final RepositorioInvestigadores repositorioInvestigadores;
     private final InvestigadorFactory investigadorFactory;
 
@@ -54,6 +56,7 @@ public class InvestigadorService implements InvestigadorUseCase {
         investigador.marcarEnEliminacion();
         repositorioInvestigadores.guardar(investigador);
         String correo = investigador.getCorreoInstitucional().valor();
+        log.info("Saga: iniciando eliminación de {} (estado EN_ELIMINACION)", correo);
         publicadorEventos.publicar("investigadores.en-eliminacion", correo,
                 Map.of("correoInstitucional", correo));
     }

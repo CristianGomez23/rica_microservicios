@@ -1,0 +1,19 @@
+# Paso 6 - Seguir la Saga con un solo id (demo-001)
+
+Peticion: DELETE http://localhost:8000/api/investigadores/5 con cabecera X-Correlation-Id: demo-001 (mateo.diaz@uptc.edu.co)
+
+## investigadores-service  (grep demo-001)
+2026-11-11T11:26:59.616-05:00  INFO [investigadores-service,demo-001] 1020 --- [investigadores-service] [nio-8080-exec-3] c.r.i.aplication.InvestigadorService     : Saga: iniciando eliminación de mateo.diaz@uptc.edu.co (estado EN_ELIMINACION)
+2026-11-11T11:27:00.352-05:00  INFO [investigadores-service,demo-001] 1020 --- [investigadores-service] [ntainer#0-0-C-1] .r.i.i.e.m.PublicacionesMarcadasListener : Saga: publicaciones confirmó para mateo.diaz@uptc.edu.co. Eliminando investigador.
+
+## publicaciones-service  (grep demo-001)
+2026-11-11T11:27:00.243-05:00  INFO [publicaciones-service,demo-001] 10728 --- [publicaciones-service] [ntainer#0-0-C-1] .r.p.p.InvestigadorEnEliminacionListener : Saga: 1 publicaciones de mateo.diaz@uptc.edu.co marcadas como huérfanas
+
+## consultas-service  (grep demo-001) -> sin resultados
+0
+
+## consultas-service  (grep mateo.diaz) -> procesa los eventos, pero sin id de correlacion
+2026-11-11T11:25:58.751-05:00  INFO [consultas-service,] 23524 --- [consultas-service] [ntainer#1-0-C-1] c.r.c.consultas.ProyectorFichas          : Proyección: ficha de mateo.diaz@uptc.edu.co actualizada (registro)
+2026-11-11T11:26:56.308-05:00  INFO [consultas-service,] 23524 --- [consultas-service] [ntainer#2-0-C-1] c.r.c.consultas.ProyectorFichas          : Proyección: ficha de mateo.diaz@uptc.edu.co ahora tiene 1 publicaciones
+2026-11-11T11:27:00.164-05:00  INFO [consultas-service,] 23524 --- [consultas-service] [ntainer#3-0-C-1] c.r.c.consultas.ProyectorFichas          : Proyección: mateo.diaz@uptc.edu.co marcado EN_ELIMINACION
+2026-11-11T11:27:02.229-05:00  INFO [consultas-service,] 23524 --- [consultas-service] [ntainer#4-0-C-1] c.r.c.consultas.ProyectorFichas          : Proyección: ficha de mateo.diaz@uptc.edu.co eliminada

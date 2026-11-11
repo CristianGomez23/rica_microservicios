@@ -1,0 +1,48 @@
+﻿# Paso 8 - Saga atascada (publicaciones-service detenido)
+
+### curl -i -X DELETE -H "X-Correlation-Id: demo-002" http://localhost:8000/api/investigadores/9   (sofia.rios@uptc.edu.co)
+HTTP/1.1 202 Accepted
+X-Correlation-Id: demo-002
+Content-Length: 0
+Date: Wed, 11 Nov 2026 16:29:43 GMT
+
+
+### curl "http://localhost:8083/api/consultas/investigadores?estado=EN_ELIMINACION"  (Saga detenida a la mitad)
+[
+    {
+        "correo": "sofia.rios@uptc.edu.co",
+        "nombreCompleto": "Sofia Rios",
+        "estado": "EN_ELIMINACION",
+        "totalPublicaciones": 1,
+        "publicaciones": [
+            {
+                "id": "6af497ee7b2ca0c9da1f24f9",
+                "titulo": "Sagas coreografiadas",
+                "tipo": "articulo",
+                "anio": 2026
+            }
+        ]
+    }
+]
+
+### kafka-consumer-groups.sh --describe --group publicaciones-service  (publicaciones-service detenido)
+
+GROUP                 TOPIC                         PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID                                                           HOST            CLIENT-ID
+publicaciones-service investigadores.en-eliminacion 0          2               3               1               consumer-publicaciones-service-1-7e77f4cb-00ca-4639-8590-6350aa3bdf5b /172.20.0.1     consumer-publicaciones-service-1
+publicaciones-service investigadores.registrados    0          8               8               0               consumer-publicaciones-service-2-ecb2d6e6-8c3e-41ed-8f4e-023a5e9cae07 /172.20.0.1     consumer-publicaciones-service-2
+
+## Tras arrancar de nuevo publicaciones-service
+
+### kafka-consumer-groups.sh --describe --group publicaciones-service
+
+GROUP                 TOPIC                         PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID                                                           HOST            CLIENT-ID
+publicaciones-service investigadores.registrados    0          8               8               0               consumer-publicaciones-service-2-7cabb279-5129-4b34-ab7a-2a6b7cff068c /172.20.0.1     consumer-publicaciones-service-2
+publicaciones-service investigadores.en-eliminacion 0          3               3               0               consumer-publicaciones-service-1-62bfae2a-e233-427d-85fa-b6179c937056 /172.20.0.1     consumer-publicaciones-service-1
+
+### curl "http://localhost:8083/api/consultas/investigadores?estado=EN_ELIMINACION"  (la ficha ya desaparecio)
+[]
+
+### Logs con demo-002 (el id sobrevivio a la pausa de ~50 s)
+2026-11-11T11:29:43.764-05:00  INFO [investigadores-service,demo-002] 1020 --- [investigadores-service] [nio-8080-exec-4] c.r.i.aplication.InvestigadorService     : Saga: iniciando eliminación de sofia.rios@uptc.edu.co (estado EN_ELIMINACION)
+2026-11-11T11:30:32.675-05:00  INFO [publicaciones-service,demo-002] 12016 --- [publicaciones-service] [ntainer#0-0-C-1] .r.p.p.InvestigadorEnEliminacionListener : Saga: 1 publicaciones de sofia.rios@uptc.edu.co marcadas como huérfanas
+2026-11-11T11:30:33.026-05:00  INFO [investigadores-service,demo-002] 1020 --- [investigadores-service] [ntainer#0-0-C-1] .r.i.i.e.m.PublicacionesMarcadasListener : Saga: publicaciones confirmó para sofia.rios@uptc.edu.co. Eliminando investigador.
