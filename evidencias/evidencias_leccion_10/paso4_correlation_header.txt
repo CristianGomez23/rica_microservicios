@@ -1,0 +1,17 @@
+### curl -i -H "X-Correlation-Id: demo-001" http://localhost:8080/api/investigadores
+HTTP/1.1 200 
+X-Correlation-Id: demo-001
+Content-Type: application/json
+Content-Length: 291
+Date: Wed, 11 Nov 2026 16:25:38 GMT
+
+[{"id":1,"nombreCompleto":"Pedro Navaja","grupoInvestigacion":"Grupo de Investigacion de Sistemas"},{"id":3,"nombreCompleto":"Luis Mora","grupoInvestigacion":"Grupo de Investigacion de Sistemas"},{"id":4,"nombreCompleto":"Luis Gil","grupoInvestigacion":"Grupo de Investigacion de Sistemas"}]
+
+### curl -i http://localhost:8080/api/investigadores  (sin cabecera: se genera un UUID)
+HTTP/1.1 200 
+X-Correlation-Id: 2fd9dcd4-e593-42d5-a912-7e79a4489c9e
+Content-Type: application/json
+Content-Length: 291
+Date: Wed, 11 Nov 2026 16:25:38 GMT
+
+[{"id":1,"nombreCompleto":"Pedro Navaja","grupoInvestigacion":"Grupo de Investigacion de Sistemas"},{"id":3,"nombreCompleto":"Luis Mora","grupoInvestigacion":"Grupo de Investigacion de Sistemas"},{"id":4,"nombreCompleto":"Luis Gil","grupoInvestigacion":"Grupo de Investigacion de Sistemas"}]

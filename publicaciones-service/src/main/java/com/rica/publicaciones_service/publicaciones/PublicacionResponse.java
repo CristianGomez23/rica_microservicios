@@ -11,7 +11,9 @@ public class PublicacionResponse {
 
 
     public PublicacionResponse(String id, String titulo, String tipo, Integer anio,
-                               Map<String, String> detalles) {
+                               Map<String, String> detalles, String investigadorCorreo, boolean huerfana) {
+        this.investigadorCorreo = investigadorCorreo;
+        this.huerfana = huerfana;
         this.id = id;
         this.titulo = titulo;
         this.tipo = tipo;
@@ -55,7 +57,15 @@ public class PublicacionResponse {
         return detalles;
     }
 
-    public void setDetalles(Map<String, String> detalles) {
+    public void setDetalles(Map<String, String> detalles, String investigadorCorreo, boolean huerfana) {
+        this.investigadorCorreo = investigadorCorreo;
+        this.huerfana = huerfana;
         this.detalles = detalles;
     }
+
+    private String investigadorCorreo;
+    private boolean huerfana;
+    public String getInvestigadorCorreo() { return investigadorCorreo; }
+    public boolean isHuerfana() { return huerfana; }
+
 }

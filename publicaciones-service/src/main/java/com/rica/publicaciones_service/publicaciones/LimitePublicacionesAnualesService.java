@@ -1,22 +1,11 @@
 package com.rica.publicaciones_service.publicaciones;
-
 import org.springframework.stereotype.Service;
-//import rica_api.investigadores.dominio.Investigador;
-
 @Service
 public class LimitePublicacionesAnualesService {
-
     private static final int MAXIMO_POR_ANIO = 5;
-
-    private final PublicacionRepository publicacionRepository;
-
-    public LimitePublicacionesAnualesService(PublicacionRepository publicacionRepository) {
-        this.publicacionRepository = publicacionRepository;
+    private final PublicacionRepository repositorio;
+    public LimitePublicacionesAnualesService(PublicacionRepository repositorio) { this.repositorio = repositorio; }
+    public boolean puedeRegistrar(Publicacion nueva) {
+        return repositorio.countByInvestigadorCorreoAndAnio(nueva.getInvestigadorCorreo(), nueva.getAnio()) < MAXIMO_POR_ANIO;
     }
-
-    //public boolean puedeRegistrar(Investigador investigador, Publicacion nueva) {
-    //    long registradasEsteAnio = publicacionRepository.countByInvestigadorCorreoAndAnio(
-    //            investigador.getCorreoInstitucional().valor(), nueva.getAnio());
-    //    return registradasEsteAnio < MAXIMO_POR_ANIO;
-    //}
 }

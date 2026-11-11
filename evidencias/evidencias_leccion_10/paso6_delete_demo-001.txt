@@ -1,0 +1,6 @@
+### curl -i -X DELETE -H "X-Correlation-Id: demo-001" http://localhost:8000/api/investigadores/5
+HTTP/1.1 202 Accepted
+X-Correlation-Id: demo-001
+Content-Length: 0
+Date: Wed, 11 Nov 2026 16:26:59 GMT
+

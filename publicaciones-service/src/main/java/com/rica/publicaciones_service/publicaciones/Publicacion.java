@@ -68,4 +68,9 @@ public class Publicacion {
     public void setDetalles(Map<String, String> detalles) {
         this.detalles = detalles;
     }
+
+    private boolean huerfana;
+    public boolean isHuerfana() { return huerfana; }
+    public void marcarComoHuerfana() { huerfana = true; }
+
 }
